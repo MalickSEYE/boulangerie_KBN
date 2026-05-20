@@ -1,7 +1,7 @@
 const bcrypt        = require('bcryptjs');
 const jwt           = require('jsonwebtoken');
-const clientPromise = require('../_lib/mongodb');
-const { handleCors } = require('../_lib/auth');
+const clientPromise = require('../lib/mongodb');
+const { handleCors } = require('../lib/auth');
 
 module.exports = async function(req, res) {
   if (handleCors(req, res)) return;

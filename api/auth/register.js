@@ -1,6 +1,6 @@
 const bcrypt        = require('bcryptjs');
-const clientPromise = require('../_lib/mongodb');
-const { handleCors, requireRole } = require('../_lib/auth');
+const clientPromise = require('../lib/mongodb');
+const { handleCors, requireRole } = require('../lib/auth');
 
 module.exports = async function(req, res) {
   if (handleCors(req, res)) return;
