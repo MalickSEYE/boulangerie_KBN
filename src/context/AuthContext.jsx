@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api';
+import { authAPI } from '../api';
 
 const AuthContext = createContext(null);
 
@@ -7,18 +7,15 @@ export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Restaure la session au chargement
   useEffect(() => {
     const token    = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-    }
+    if (token && userData) { try { setUser(JSON.parse(userData)); } catch {} }
     setLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
+    const res = await authAPI.login({ email, password });
     const { token, user: u } = res.data;
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(u));
@@ -32,10 +29,8 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const isAdmin = () => user?.role === 'admin';
-
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, isAdmin: () => user?.role === 'admin' }}>
       {children}
     </AuthContext.Provider>
   );
