@@ -1,14 +1,15 @@
-import bcrypt from 'bcryptjs';
-import jwt    from 'jsonwebtoken';
-import { connectDB }  from '../_lib/mongoose.js';
-import { User }       from '../_lib/models.js';
-import { handleCors } from '../_lib/auth.js';
+const bcrypt = require('bcryptjs');
+const jwt    = require('jsonwebtoken');
+const { connectDB }  = require('../_lib/mongoose');
+const { User }       = require('../_lib/models');
+const { handleCors } = require('../_lib/auth');
 
-export default async function handler(req, res) {
+module.exports = async function(req, res) {
   if (handleCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ message: 'Méthode non autorisée' });
 
-  await connectDB();
+  try { await connectDB(); }
+  catch (err) { return res.status(500).json({ message: 'Erreur DB', detail: err.message }); }
 
   const { email, password } = req.body || {};
   if (!email || !password) return res.status(400).json({ message: 'Email et mot de passe requis' });
@@ -26,9 +27,8 @@ export default async function handler(req, res) {
       { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
     );
 
-    res.status(200).json({ token, user });
+    return res.status(200).json({ token, user });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Erreur serveur' });
+    return res.status(500).json({ message: 'Erreur serveur', detail: err.message });
   }
-}
+};
