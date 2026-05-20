@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,21 +8,24 @@ export default function Login() {
   const [erreur,   setErreur]   = useState('');
   const [loading,  setLoading]  = useState(false);
 
-  const { login } = useAuth();
-  const navigate  = useNavigate();
+  const { login, user } = useAuth();
+  const navigate        = useNavigate();
+
+  // Redirige dès que user est défini dans le contexte
+  useEffect(() => {
+    if (user) navigate('/', { replace: true });
+  }, [user]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setErreur('');
     setLoading(true);
-
     try {
       await login(email, password);
-      navigate('/');
+      // La redirection est gérée par le useEffect ci-dessus
     } catch (err) {
       const msg = err.response?.data?.message || 'Erreur de connexion. Vérifiez vos identifiants.';
       setErreur(msg);
-    } finally {
       setLoading(false);
     }
   };
